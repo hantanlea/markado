@@ -1,0 +1,59 @@
+[project]
+name = "todo-list"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "alembic>=1.17.1",
+    "fastapi>=0.120.4",
+    "python-dotenv>=1.2.1",
+    "sqlmodel>=0.0.27",
+    "uvicorn>=0.38.0",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.18.2",
+    "pre-commit>=4.3.0",
+    "pytest>=8.4.2",
+    "ruff>=0.14.3",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+src = ["src"]
+
+# --- Linting rules ---
+[tool.ruff.lint]
+# Choose which rulesets to enable
+select = [
+    "E",  # pycodestyle (errors)
+    "F",  # Pyflakes (logic/bug detection)
+    "I",  # isort (import sorting)
+    "UP", # pyupgrade (modernise code)
+]
+ignore = [
+    # Add any rules you deliberately want to silence
+]
+
+# --- Formatting rules ---
+[tool.ruff.format]
+# Match Black's behaviour (Ruff format is Black-compatible)
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = true
+[tool.mypy]
+python_version = "3.11"
+strict = true
+plugins = []
+mypy_path = ["src"]
+packages = ["todo_backend"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+pythonpath = ["src"]
