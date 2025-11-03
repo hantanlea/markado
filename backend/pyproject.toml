@@ -5,6 +5,36 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "alembic>=1.17.1",
     "fastapi>=0.120.4",
+    "python-dotenv>=1.2.1",
+    "sqlmodel>=0.0.27",
     "uvicorn>=0.38.0",
 ]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.18.2",
+    "pre-commit>=4.3.0",
+    "pytest>=8.4.2",
+    "ruff>=0.14.3",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = ["E", "F"]
+ignore = []
+src = ["src"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+plugins = []
+mypy_path = ["src"]
+packages = ["todo_backend"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+pythonpath = ["src"]
