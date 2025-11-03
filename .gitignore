@@ -1,10 +1,12 @@
 # Python-generated files
 /backend/__pycache__/
+/backend/src/todo_backend/__pycache__
 /backend/*.py[oc]
 /backend/build/
 /backend/dist/
 /backend/wheels/
 /backend/*.egg-info
+*.pyc		
 
 # Virtual environments
 /backend/.venv
