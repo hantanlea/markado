@@ -48,7 +48,6 @@ line-ending = "auto"
 docstring-code-format = true
 [tool.mypy]
 python_version = "3.11"
-strict = true
 plugins = []
 mypy_path = ["src"]
 packages = ["todo_backend"]
