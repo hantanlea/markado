@@ -10,3 +10,6 @@
 
 # Virtual environments
 /backend/.venv
+
+# Environment Variables
+backend/.env
