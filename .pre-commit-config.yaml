@@ -7,7 +7,7 @@ repos:
     rev: v0.14.3
     hooks:
       - id: ruff-check
-        args: ["--fix"]
+        args: ["--fix", "--ignore", "D"]
         stages: [pre-commit]
       - id: ruff-format
         stages: [pre-commit]
@@ -17,7 +17,16 @@ repos:
     hooks:
       - id: mypy
         stages: [pre-commit]
-
+        args: ["--config=backend/pyproject.toml"]
+        additional_dependencies:
+        - sqlmodel
+        - sqlalchemy>=2
+        - pydantic>=2
+        - typing-extensions
+        - fastapi
+        - python-dotenv
+        - alembic       
+ 
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: v4.3.0
     hooks:

@@ -1,7 +1,6 @@
 # Python-generated files
-/backend/__pycache__/
-/backend/src/todo_backend/__pycache__
-/backend/*.py[oc]
+__pycache__/
+*.py[oc]
 /backend/build/
 /backend/dist/
 /backend/wheels/
@@ -12,4 +11,10 @@
 /backend/.venv
 
 # Environment Variables
-backend/.env
+/backend/.env
+
+# Development Database
+*.db
+
+# Alembic artifacts
+migrations/versions/__pycache__/

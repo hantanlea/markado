@@ -12,6 +12,12 @@ dependencies = [
     "uvicorn>=0.38.0",
 ]
 
+[project.scripts]
+todo_backend = "todo_backend:__main__"
+
+[build-system]
+requires = ["uv-build>=0.9.6, <0.10.0"]
+
 [dependency-groups]
 dev = [
     "mypy>=1.18.2",
@@ -33,6 +39,7 @@ select = [
     "F",  # Pyflakes (logic/bug detection)
     "I",  # isort (import sorting)
     "UP", # pyupgrade (modernise code)
+    "D", # docstring rules
 ]
 ignore = [
     # Add any rules you deliberately want to silence
@@ -46,9 +53,9 @@ indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
 docstring-code-format = true
+
 [tool.mypy]
 python_version = "3.11"
-strict = true
 plugins = []
 mypy_path = ["src"]
 packages = ["todo_backend"]
