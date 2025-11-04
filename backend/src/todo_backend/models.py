@@ -10,8 +10,8 @@ class Project(SQLModel, table=True):
 class Task(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name: str = Field(index=True)
-    priority: int | None
-    context: str | None
-    complete: bool
+    # priority: int | None = Field(default=None)
+    # context: str | None = Field(default=None)
+    complete: bool = Field(default=False)
     project_id: int | None = Field(default=None, foreign_key="project.id")
     project: Project | None = Relationship(back_populates="tasks")
