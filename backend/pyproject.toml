@@ -1,5 +1,5 @@
 [project]
-name = "todo-list"
+name = "todo_backend"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -12,11 +12,13 @@ dependencies = [
     "uvicorn>=0.38.0",
 ]
 
-[project.scripts]
-todo_backend = "todo_backend:__main__"
-
 [build-system]
-requires = ["uv-build>=0.9.6, <0.10.0"]
+requires = ["uv_build>=0.9.6,<0.10.0"]
+build-backend = "uv_build"
+
+# [project.scripts]
+# todo_backend = "todo_backend:__main__"
+
 
 [dependency-groups]
 dev = [
@@ -25,6 +27,8 @@ dev = [
     "pytest>=8.4.2",
     "ruff>=0.14.3",
 ]
+
+[tool.uv]
 
 [tool.ruff]
 line-length = 88
