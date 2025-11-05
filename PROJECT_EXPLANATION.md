@@ -4,7 +4,7 @@
 - sqlmodel
 - sqlalchemy
 - fastapi
-- pydantic
+- pydantic - data validation, esp. for API interactions
 - mypy
 - ruff
 - pre-commit
@@ -14,3 +14,4 @@
 - starlette
 - typing
 - uvicorn
+- enum?
