@@ -41,5 +41,11 @@ class TaskCreate(TaskBase):
     pass
 
 
+class TaskUpdate(SQLModel):
+    name: str | None = None
+    priority: int | None = None
+    complete: bool = False
+
+
 class TaskPublic(TaskBase):
     id: int
