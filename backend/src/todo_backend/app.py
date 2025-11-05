@@ -5,7 +5,11 @@ from fastapi import Depends, FastAPI, HTTPException
 from sqlmodel import Session, select
 
 from .database import get_session
-from .models import Task
+from .models import (
+    Task,
+    TaskCreate,
+    TaskPublic,
+)
 
 load_dotenv()
 
@@ -21,22 +25,25 @@ async def root() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@app.get("/tasks/", response_model=list[Task])
+@app.get("/tasks/", response_model=list[TaskPublic])
 def list_tasks(session: Session = Depends(get_session)):
     """Returns all tasks from the database."""
     tasks = session.exec(select(Task)).all()
     return tasks
 
 
-@app.post("/tasks/", response_model=Task)
-def create_task(task: Task, session: Session = Depends(get_session)):
-    session.add(task)
+@app.post("/tasks/", response_model=TaskPublic)
+def create_task(task: TaskCreate, session: Session = Depends(get_session)):
+    db_task = Task.model_validate(task)
+    session.add(db_task)
     session.commit()
-    session.refresh(task)
-    return task
+    session.refresh(db_task)
+    return db_task
 
 
-@app.delete("/tasks/{task_id}", status_code=204)
+@app.delete(
+    "/tasks/{task_id}", status_code=204
+)  # task_id gets passed straight to function
 def delete_task(task_id: int, session: Session = Depends(get_session)):
     task = session.get(Task, task_id)
     if not task:
@@ -44,3 +51,13 @@ def delete_task(task_id: int, session: Session = Depends(get_session)):
     session.delete(task)
     session.commit()
     return None
+
+
+@app.put("/tasks/")
+def update_task(task_id: int, session: Session = Depends(get_session)):
+    task = session.get(Task, task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    task.priority = 1
+    session.add(task)
+    session.commit()
