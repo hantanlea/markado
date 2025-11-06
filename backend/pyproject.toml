@@ -34,7 +34,6 @@ dev = [
 line-length = 88
 target-version = "py311"
 src = ["src"]
-unfixable = ["F401"] # do not auto-fix unused imports
 
 # --- Linting rules ---
 [tool.ruff.lint]
@@ -49,6 +48,11 @@ select = [
 ignore = [
     # Add any rules you deliberately want to silence
 ]
+unfixable = ["F401"] # do not auto-fix unused imports
+
+# Optional: pick a docstring convention to avoid conflicting D2xx rules
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 # --- Formatting rules ---
 [tool.ruff.format]
