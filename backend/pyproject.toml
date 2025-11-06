@@ -34,6 +34,7 @@ dev = [
 line-length = 88
 target-version = "py311"
 src = ["src"]
+unfixable = ["F401"] # do not auto-fix unused imports
 
 # --- Linting rules ---
 [tool.ruff.lint]
@@ -63,6 +64,9 @@ python_version = "3.11"
 plugins = []
 mypy_path = ["src"]
 packages = ["todo_backend"]
+exclude = [
+    "migrations/env.py",
+]
 
 [tool.pytest.ini_options]
 addopts = "-q"

@@ -7,7 +7,7 @@ repos:
     rev: v0.14.3
     hooks:
       - id: ruff-check
-        args: ["--fix", "--ignore", "D"]
+        args: ["--fix", "--ignore", "D"] # ignore missing docstrings in pre-commit
         stages: [pre-commit]
       - id: ruff-format
         stages: [pre-commit]
