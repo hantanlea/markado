@@ -49,3 +49,34 @@ class TaskUpdate(SQLModel):
 
 class TaskPublic(TaskBase):
     id: int
+
+
+# USER CLASSES
+"""
+class UserBase(SQLModel):
+    name: str = Field(index=True)
+    priority: int | None = Field(default=None)
+    # context: str | None = Field(default=None)
+    complete: bool = Field(default=False)
+    project_id: int | None = Field(default=None, foreign_key="project.id")
+
+
+class User(UserBase, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    project: Project | None = Relationship(back_populates="users")
+    hashed_password: str = Field
+
+
+class UserCreate(UserBase):
+    password: str
+
+class UserUpdate(SQLModel):
+    name: str | None = None
+    priority: int | None = None
+    complete: bool = False
+    password: str | None = None
+
+
+class UserPublic(TaskBase):
+    id: int
+"""

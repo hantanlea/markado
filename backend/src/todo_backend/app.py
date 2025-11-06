@@ -21,6 +21,10 @@ print("PORT", os.getenv("PORT"))
 app = FastAPI()
 
 
+# def hash_password(password):
+# return f"hashed_{password}"
+
+
 @app.get("/health")
 async def root() -> dict[str, str]:
     return {"status": "ok"}
@@ -48,6 +52,10 @@ def read_task(task_id: int, session: Session = Depends(get_session)):
 @app.post("/tasks/", response_model=TaskPublic)
 def create_task(task: TaskCreate, session: Session = Depends(get_session)):
     db_task = Task.model_validate(task)
+    # db_task is a Task, which will extract values from the TaskCreate object
+    # and then update with info from extra_data dictionary, so including hashed_password
+    # will not take password field as not defined in Task
+    # extra_data takes precedence
     session.add(db_task)
     session.commit()
     session.refresh(db_task)
@@ -78,3 +86,21 @@ def update_task(
     session.commit()
     session.refresh(db_task)
     return db_task
+
+
+## Add User Example
+"""
+@app.post("/users/", response_model=UserPublic)
+def create_user(user: UserCreate, session: Session = Depends(get_session)):
+    hashed_password = hash_password(user.password)
+    extra_data = {"hashed_password": hashed_password}
+    db_user = User.model_validate(user, update=extra_data)
+    # db_task is a Task, which will extract values from the TaskCreate object
+    # and then update with info from extra_data dictionary, so including hashed_password
+    # will not take password field as not defined in Task
+    # extra_data takes precedence
+    session.add(db_user)
+    session.commit()
+    session.refresh(db_user)
+    return db_user
+    """
