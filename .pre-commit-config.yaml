@@ -18,6 +18,7 @@ repos:
       - id: mypy
         stages: [pre-commit]
         args: ["--config=backend/pyproject.toml"]
+        exclude: backend/migrations/
         additional_dependencies:
         - sqlmodel
         - sqlalchemy>=2
