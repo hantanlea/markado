@@ -19,5 +19,5 @@ __pycache__/
 # Alembic artifacts
 migrations/versions/__pycache__/
 
-# Temp logs
-backend/logs/
+# Data files
+backend/data

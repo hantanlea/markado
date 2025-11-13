@@ -1,4 +1,3 @@
-import json
 import logging
 import logging.config
 import os
@@ -9,23 +8,51 @@ from dotenv import load_dotenv
 
 def setup_logging():
     load_dotenv()
-    logging_config = Path("logging_config.json")
 
-    with open(logging_config) as f:
-        config = json.load(f)
-    try:
-        log_dir = os.getenv("LOG_DIR")
-        if log_dir:
-            log_path = Path(log_dir).expanduser()
-            log_path.mkdir(parents=True, exist_ok=True)
-            config["handlers"]["file"]["filename"] = str(log_path / "backend.log")
-            print(f"Created log directory at: {log_path}")
-    except Exception as e:
-        log_dir = Path(config["handlers"]["file"]["filename"]).parent
-        print(f"Error creating log directory. Falling back to local folder: {e}")
-    finally:
-        logging.config.dictConfig(config)
-        logging.info("Logger started")
+    # log_profile = os.getenv("LOG_PROFILE", "PROD").upper()
+    log_level = os.getenv("LOG_LEVEL", "INFO").upper()
+    log_dir = Path(
+        f"{os.getenv('BASE_DIR', '../../')}/{os.getenv('LOG_DIR', 'data/logs')}"
+    ).expanduser()
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_file = os.path.join(log_dir, "backend.log")
+
+    logging_config = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "simple": {
+                "format": "%(levelname)s:     %(name)s - %(asctime)s - %(message)s"
+            },
+            "detailed": {
+                "format": (
+                    "[%(levelname)s|%(module)s|L%(lineno)d] %(asctime)s: %(message)s"
+                ),
+                "datefmt": "%Y-%m-%dT%H:%M:%S%z",
+            },
+        },
+        "handlers": {
+            "stderr": {
+                "class": "logging.StreamHandler",
+                "level": "INFO",
+                "formatter": "simple",
+                "stream": "ext://sys.stderr",
+            },
+            "file": {
+                "class": "logging.handlers.RotatingFileHandler",
+                "level": log_level,
+                "formatter": "detailed",
+                "filename": log_file,
+                "maxBytes": 1000000,
+                "backupCount": 3,
+            },
+        },
+        "loggers": {"root": {"level": log_level, "handlers": ["file", "stderr"]}},
+    }
+
+    logging.config.dictConfig(logging_config)
+    logger = logging.getLogger("backend")
+    logger.info(f"Logging initialized. Log directory: {log_dir}")
 
 
 if __name__ == "__main__":

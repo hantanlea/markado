@@ -1,24 +1,36 @@
+import logging
 import os
+from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException, Query
 from sqlmodel import Session, select
 
-from .database import get_session
+from .database import get_session, init_db
 from .models import (
     Task,
     TaskCreate,
     TaskPublic,
     TaskUpdate,
 )
+from .setup_logging import setup_logging
 
-load_dotenv()
 
-print("Loading .env file...")
-print("PP_ENV", os.getenv("PP_ENV"))
-print("PORT", os.getenv("PORT"))
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup code
+    load_dotenv()
+    setup_logging()
+    init_db()
+    logger = logging.getLogger(__name__)
+    logger.info(f"PP_ENV: {os.getenv('PP_ENV')}")
+    logger.info(f"PORT: {os.getenv('PORT')}")
+    yield
 
-app = FastAPI()
+    # Shutdown code (if any)
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 # def hash_password(password):
@@ -37,7 +49,6 @@ def list_tasks(
     session: Session = Depends(get_session),
 ):
     tasks = session.exec(select(Task).offset(offset).limit(limit)).all()
-
     return tasks
 
 
