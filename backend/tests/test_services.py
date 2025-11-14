@@ -18,7 +18,7 @@ def test_session():
     engine = create_engine(
         "sqlite://",
         connect_args={"check_same_thread": False},
-        echo=True,
+        echo=False,
     )
 
     SQLModel.metadata.create_all(engine)
@@ -28,13 +28,13 @@ def test_session():
 
 
 @pytest.fixture
-def session_with_tasks(test_session):
+def session_with_tasks(test_session: Session):
     tasks = [
-        Task(name="Listen to French podcast"),
-        Task(name="Learn sqlmodel"),
-        Task(name="Buy bread"),
-        Task(name="Clean floor"),
-        Task(name="Finish setting up tests"),
+        Task(name="T1"),
+        Task(name="T2"),
+        Task(name="T3"),
+        Task(name="T4"),
+        Task(name="T5"),
     ]
 
     test_session.add_all(tasks)
@@ -42,12 +42,147 @@ def session_with_tasks(test_session):
     return test_session
 
 
+@pytest.fixture
+def make_tasks(test_session: Session):
+    def _make_tasks(count: int):
+        for i in range(count):
+            task = Task(name=f"T{i + 1}")
+            test_session.add(task)
+        test_session.commit()
+
+    return _make_tasks
+
+
 def test_list_tasks_empty_tasks(test_session):
     tasks = list_tasks(test_session)
     assert tasks == []
 
 
-def test_list_tasks_with_tasks(session_with_tasks):
-    tasks = list_tasks(session_with_tasks)
+def test_list_tasks_small_db(make_tasks, test_session):
+    make_tasks(5)
+    tasks = list_tasks(test_session)
     assert len(tasks) == 5
+    assert tasks[0].name == "T1"
+    assert tasks[1].name == "T2"
+    assert tasks[-1].name == "T5"
     assert all(isinstance(t, Task) for t in tasks)
+
+
+@pytest.mark.parametrize(
+    "offset, limit, expected",
+    [
+        pytest.param(0, 100, ["T1", "T2", "T3", "T4", "T5"], id="defaults_0_100"),
+        pytest.param(1, 100, ["T2", "T3", "T4", "T5"], id="offset_1_limit_100"),
+        pytest.param(0, 2, ["T1", "T2"], id="offset_0_limit_2"),
+        pytest.param(2, 3, ["T3", "T4", "T5"], id="offset_2_limit_3"),
+        pytest.param(5, 10, [], id="offset=length"),
+        pytest.param(0, 0, [], id="limit=0"),
+        pytest.param(0, 999, ["T1", "T2", "T3", "T4", "T5"], id="offset_0_limit_999"),
+    ],
+)
+def test_list_tasks_pagination_small_db(offset, limit, expected, session_with_tasks):
+    tasks = list_tasks(session_with_tasks, offset=offset, limit=limit)
+    tasks_names = [task.name for task in tasks]
+    assert tasks_names == expected
+
+
+def test_list_tasks_large_db_defaults(make_tasks, test_session):
+    make_tasks(150)
+    tasks = list_tasks(test_session)  # offset = 0, limit = 100
+    assert len(tasks) == 100
+    assert tasks[0].name == "T1"
+    assert tasks[1].name == "T2"
+    assert tasks[-1].name == "T100"
+    assert all(isinstance(t, Task) for t in tasks)
+
+
+def test_list_tasks_large_db_offset(make_tasks, test_session):
+    make_tasks(150)
+    tasks = list_tasks(test_session, offset=50, limit=100)
+    assert len(tasks) == 100
+    assert tasks[0].name == "T51"
+    assert tasks[1].name == "T52"
+    assert tasks[-1].name == "T150"
+    assert all(isinstance(t, Task) for t in tasks)
+
+
+def test_list_tasks_large_db_offset_and_limit(make_tasks, test_session):
+    make_tasks(150)
+    tasks = list_tasks(test_session, offset=30, limit=50)
+    assert len(tasks) == 50
+    assert tasks[0].name == "T31"
+    assert tasks[1].name == "T32"
+    assert tasks[-1].name == "T80"
+    assert all(isinstance(t, Task) for t in tasks)
+
+
+def test_list_tasks_large_db_limit(make_tasks, test_session):
+    make_tasks(150)
+    tasks = list_tasks(test_session, offset=0, limit=75)
+    assert len(tasks) == 75
+    assert tasks[0].name == "T1"
+    assert tasks[1].name == "T2"
+    assert tasks[-1].name == "T75"
+    assert all(isinstance(t, Task) for t in tasks)
+
+
+def test_list_tasks_large_offset_near_end(make_tasks, test_session):
+    make_tasks(150)
+    tasks = list_tasks(test_session, offset=145, limit=100)
+    assert len(tasks) == 5
+    assert tasks[0].name == "T146"
+    assert tasks[1].name == "T147"
+    assert tasks[-1].name == "T150"
+    assert all(isinstance(t, Task) for t in tasks)
+
+
+def test_list_tasks_large_db_offset_beyond_length(make_tasks, test_session):
+    make_tasks(150)
+
+    tasks = list_tasks(test_session, offset=150, limit=10)
+    assert tasks == []
+
+
+def test_list_tasks_large_db_zero_limit(make_tasks, test_session):
+    make_tasks(150)
+
+    tasks = list_tasks(test_session, offset=0, limit=0)
+    assert tasks == []
+
+
+def test_list_tasks_large_db_large_limit(make_tasks, test_session):
+    make_tasks(150)
+    tasks = list_tasks(test_session, offset=0, limit=999)
+    assert len(tasks) == 150
+    assert tasks[0].name == "T1"
+    assert tasks[1].name == "T2"
+    assert tasks[-1].name == "T150"
+    assert all(isinstance(t, Task) for t in tasks)
+
+
+# @pytest.mark.parametrize(
+# "offset, limit, expected",
+# [
+# pytest.param(0, 100, ["T1", "T2", "T100", 100], id="large_db_defaults_0_100"),
+# pytest.param(
+# 1, 100, ["T2", "T3", "T101", 100], id="large_db_offset_1_limit_100"
+# ),
+# pytest.param(0, 2, ["T1", "T2", "T2", 2], id="large_db_offset_0_limit_2"),
+# pytest.param(2, 3, ["T3", "T4", "T5", 3], id="large_db_offset_2_limit_3"),
+# pytest.param(150, 10, [None, None, None, 0], id="large_db_offset=length"),
+# pytest.param(0, 0, [None, None, None, 0], id="large_db_limit=0"),
+# pytest.param(0, 999, ["T1", "T2", "T150", 150], id="offset_0_limit_999"),
+# ],
+# )
+# def test_list_tasks_pagination_large_db(
+# offset, limit, expected, make_tasks, test_session
+# ):
+# make_tasks(150)
+# tasks = list_tasks(test_session, offset=offset, limit=limit)
+# first_task = tasks[0].name or None
+# second_task = tasks[1].name or None
+# last_task = tasks[-1].name or None
+# length_tasks = len(tasks)
+# answer = [first_task, second_task, last_task, length_tasks]
+# assert all(isinstance(t, Task) for t in tasks)
+# assert answer == expected

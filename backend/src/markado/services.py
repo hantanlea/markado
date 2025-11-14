@@ -12,7 +12,7 @@ from markado.database import engine
 from markado.models import Task, TaskCreate, TaskUpdate
 
 
-def list_tasks(session: Session, offset: int = 0, limit: int = 100) -> list[Task]:
+def list_tasks(session: Session, *, offset: int = 0, limit: int = 100) -> list[Task]:
     """Retrieve a list of Task records from the database."""
     result = session.exec(select(Task).offset(offset).limit(limit))
     tasks = cast(list[Task], result.all())
