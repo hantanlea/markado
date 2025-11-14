@@ -8,8 +8,8 @@ from typing import cast
 
 from sqlmodel import Session, select
 
-from todo_backend.database import engine
-from todo_backend.models import Task, TaskCreate, TaskUpdate
+from markado.database import engine
+from markado.models import Task, TaskCreate, TaskUpdate
 
 
 def list_tasks(session: Session, offset: int = 0, limit: int = 100) -> list[Task]:

@@ -1,6 +1,6 @@
-"""Tests for todo_backend.services using an in-memory SQLite database.
+"""Tests for markado.services using an in-memory SQLite database.
 
-This module provides fixtures and tests for the todo_backend.services
+This module provides fixtures and tests for the markado.services
 functions, including a Session fixture that sets up an in-memory SQLite
 database for isolated testing.
 """
@@ -8,8 +8,8 @@ database for isolated testing.
 import pytest
 from sqlmodel import Session, SQLModel, create_engine
 
-from todo_backend.models import Task
-from todo_backend.services import list_tasks
+from markado.models import Task
+from markado.services import list_tasks
 
 
 @pytest.fixture

@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException, Query
 from sqlmodel import Session
 
-from todo_backend import services
+from markado import services
 
 from .database import get_session, init_db
 from .models import (
