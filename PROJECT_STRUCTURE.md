@@ -33,11 +33,11 @@ This file explains what each folder and file in the repo is for.
 
 ---
 
-## Backend source (`backend/src/todo_backend/`)
+## Backend source (`backend/src/markado/`)
 
 | File | Description |
 |------|--------------|
-| **\_\_init\_\_.py** | Marks this folder as a Python package (`todo_backend`). |
+| **\_\_init\_\_.py** | Marks this folder as a Python package (`markado`). |
 | **app.py** | FastAPI app entry point — defines your API and endpoints. |
 | **database.py** | Database setup — creates the SQLModel engine, connects Alembic, etc. |
 | **models.py** | SQLModel classes (your database tables). |
