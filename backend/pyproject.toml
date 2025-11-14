@@ -69,6 +69,7 @@ python_version = "3.11"
 plugins = []
 mypy_path = ["src"]
 packages = ["todo_backend"]
+ignore_missing_imports = true
 exclude = [
     "migrations/env.py",
 ]
