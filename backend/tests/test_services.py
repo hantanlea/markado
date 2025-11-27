@@ -8,13 +8,15 @@ database for isolated testing.
 import pytest
 from sqlmodel import Session, SQLModel, create_engine
 
-from markado.models import Task
-from markado.services import list_tasks
+from markado.models import Task, TaskCreate
+from markado.services import create_task, get_task, list_tasks
+
+## list-tasks tests
 
 
 @pytest.fixture
 def test_session():
-    # Setup in-memory SQLite databtesting
+    # Setup in-memory SQLite database for testing
     engine = create_engine(
         "sqlite://",
         connect_args={"check_same_thread": False},
@@ -160,29 +162,39 @@ def test_list_tasks_large_db_large_limit(make_tasks, test_session):
     assert all(isinstance(t, Task) for t in tasks)
 
 
-# @pytest.mark.parametrize(
-# "offset, limit, expected",
-# [
-# pytest.param(0, 100, ["T1", "T2", "T100", 100], id="large_db_defaults_0_100"),
-# pytest.param(
-# 1, 100, ["T2", "T3", "T101", 100], id="large_db_offset_1_limit_100"
-# ),
-# pytest.param(0, 2, ["T1", "T2", "T2", 2], id="large_db_offset_0_limit_2"),
-# pytest.param(2, 3, ["T3", "T4", "T5", 3], id="large_db_offset_2_limit_3"),
-# pytest.param(150, 10, [None, None, None, 0], id="large_db_offset=length"),
-# pytest.param(0, 0, [None, None, None, 0], id="large_db_limit=0"),
-# pytest.param(0, 999, ["T1", "T2", "T150", 150], id="offset_0_limit_999"),
-# ],
-# )
-# def test_list_tasks_pagination_large_db(
-# offset, limit, expected, make_tasks, test_session
-# ):
-# make_tasks(150)
-# tasks = list_tasks(test_session, offset=offset, limit=limit)
-# first_task = tasks[0].name or None
-# second_task = tasks[1].name or None
-# last_task = tasks[-1].name or None
-# length_tasks = len(tasks)
-# answer = [first_task, second_task, last_task, length_tasks]
-# assert all(isinstance(t, Task) for t in tasks)
-# assert answer == expected
+## get_task tests
+
+
+def test_get_task_valid_id(make_tasks, test_session):
+    make_tasks(5)
+    task = get_task(test_session, 3)
+    assert isinstance(task, Task)
+    assert task.name == "T3"
+    assert task.priority is None
+    assert task.complete is False
+    assert task.project_id is None
+
+
+def test_get_task_invalid_id(make_tasks, test_session):
+    make_tasks(5)
+    task = get_task(test_session, 6)
+    assert task is None
+
+
+## create_task tests
+
+
+def test_create_task(make_tasks, test_session):
+    make_tasks(5)
+    task_create = TaskCreate(name="test task", priority=3)
+    db_task = create_task(test_session, task_create)
+    assert isinstance(db_task, Task)
+    assert db_task.id is not None
+    assert db_task.name == "test task"
+    assert db_task.priority == 3
+    assert db_task.complete is False
+    assert db_task.project_id is None
+
+    fetched = test_session.get(Task, db_task.id)
+    assert fetched is not None
+    assert fetched.name == "test task"
