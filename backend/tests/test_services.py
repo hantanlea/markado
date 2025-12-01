@@ -6,10 +6,10 @@ database for isolated testing.
 """
 
 import pytest
-from sqlmodel import Session, SQLModel, create_engine
+from sqlmodel import Session, SQLModel, create_engine, select
 
-from markado.models import Task, TaskCreate
-from markado.services import create_task, get_task, list_tasks
+from markado.models import Task, TaskCreate, TaskUpdate
+from markado.services import create_task, delete_task, get_task, list_tasks, update_task
 
 ## list-tasks tests
 
@@ -53,6 +53,9 @@ def make_tasks(test_session: Session):
         test_session.commit()
 
     return _make_tasks
+
+
+## Tests for list-tasks
 
 
 def test_list_tasks_empty_tasks(test_session):
@@ -162,7 +165,7 @@ def test_list_tasks_large_db_large_limit(make_tasks, test_session):
     assert all(isinstance(t, Task) for t in tasks)
 
 
-## get_task tests
+## Tests for get_task
 
 
 def test_get_task_valid_id(make_tasks, test_session):
@@ -181,7 +184,7 @@ def test_get_task_invalid_id(make_tasks, test_session):
     assert task is None
 
 
-## create_task tests
+## Tests for create_task
 
 
 def test_create_task(make_tasks, test_session):
@@ -198,3 +201,51 @@ def test_create_task(make_tasks, test_session):
     fetched = test_session.get(Task, db_task.id)
     assert fetched is not None
     assert fetched.name == "test task"
+
+
+## Tests for delete_task
+
+
+def test_delete_task_valid(make_tasks, test_session):
+    make_tasks(5)
+    success = delete_task(test_session, 3)
+
+    assert success is True
+    tasks = test_session.exec(select(Task)).all()
+    assert len(tasks) == 4
+    assert test_session.get(Task, 3) is None
+    assert test_session.get(Task, 5) is not None
+
+
+def test_delete_task_invalid(make_tasks, test_session):
+    make_tasks(5)
+    success = delete_task(test_session, 6)
+    tasks = test_session.exec(select(Task)).all()
+    assert success is False
+    assert len(tasks) == 5
+
+
+def test_update_task_valid(make_tasks, test_session):
+    make_tasks(5)
+    task_update = TaskUpdate(name="Buy milk", priority=3, complete=True)
+    result = update_task(test_session, 2, task_update)
+    assert isinstance(result, Task)
+    assert result.name == "Buy milk"
+    assert result.priority == 3
+    assert result.complete is True
+
+
+def test_update_task_invalid_task(make_tasks, test_session):
+    make_tasks(5)
+    task_update = TaskUpdate(name="Tidy house", priority=2, complete=True)
+    result = update_task(test_session, 6, task_update)
+    assert result is None
+    tasks = test_session.exec(select(Task)).all()
+    assert all(t.name != "Tidy house" for t in tasks)
+
+
+def test_update_task_invalid_values(make_tasks, test_session):
+    make_tasks(5)
+    task_update = TaskUpdate(name=4, priority="Buy eggs")
+    result = update_task(test_session, 6, task_update)
+    assert result is None
