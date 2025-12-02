@@ -5,7 +5,9 @@ __pycache__/
 /backend/dist/
 /backend/wheels/
 *.egg-info
-*.pyc		
+*.pyc
+.mypy_cache/
+.ruff_cache/		
 
 # Virtual environments
 /backend/.venv

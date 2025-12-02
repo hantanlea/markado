@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from sqlalchemy import engine_from_config, pool
 from sqlmodel import SQLModel
 
-from todo_backend import models  # noqa: F401
+from markado import models  # noqa: F401
 
 load_dotenv()
 

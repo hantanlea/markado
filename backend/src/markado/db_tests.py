@@ -1,7 +1,7 @@
 from sqlmodel import Session, select
 
-from todo_backend.database import engine
-from todo_backend.models import Project, Task
+from markado.database import engine
+from markado.models import Project, Task
 
 
 def create_tasks() -> None:

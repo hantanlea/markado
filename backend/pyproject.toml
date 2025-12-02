@@ -1,5 +1,5 @@
 [project]
-name = "todo-backend"
+name = "markado"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -16,12 +16,9 @@ dependencies = [
 requires = ["uv_build>=0.9.6,<0.10.0"]
 build-backend = "uv_build"
 
-# [project.scripts]
-# todo_backend = "todo_backend:__main__"
-
-
 [dependency-groups]
 dev = [
+    "httpx>=0.28.1",
     "mypy>=1.18.2",
     "pre-commit>=4.3.0",
     "pytest>=8.4.2",
@@ -67,7 +64,8 @@ docstring-code-format = true
 python_version = "3.11"
 plugins = []
 mypy_path = ["src"]
-packages = ["todo_backend"]
+packages = ["markado"]
+ignore_missing_imports = true
 exclude = [
     "migrations/env.py",
 ]
