@@ -1,9 +1,19 @@
-# from fastapi import FastAPI
-# from fastapi.testclient import TestClient
+from fastapi.testclient import TestClient
+
+from markado.app import app
 
 
 def test_smoke():
     assert 1 + 1 == 2
+
+
+client = TestClient(app)
+
+
+def test_health():
+    response = client.get("/health")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
 
 
 # app = FastAPI()
@@ -12,8 +22,6 @@ def test_smoke():
 # @app.get("/")
 # async def read_main():
 # return {"msg": "Hello World"}
-
-# client = TestClient(app)
 
 # def test_read_main():
 # response = client.get("/")

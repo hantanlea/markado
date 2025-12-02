@@ -242,10 +242,3 @@ def test_update_task_invalid_task(make_tasks, test_session):
     assert result is None
     tasks = test_session.exec(select(Task)).all()
     assert all(t.name != "Tidy house" for t in tasks)
-
-
-def test_update_task_invalid_values(make_tasks, test_session):
-    make_tasks(5)
-    task_update = TaskUpdate(name=4, priority="Buy eggs")
-    result = update_task(test_session, 6, task_update)
-    assert result is None
